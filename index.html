@@ -12,6 +12,11 @@
     <meta property="og:image" content="cristel fotos/cristelfotofamosos-susanagimenez.webp">
     <meta name="theme-color" content="#060606">
 
+    <!-- PRELOAD TURBO & PRIORIDAD DE VIDEO HERO (CARGA INSTANTÁNEA) -->
+    <link rel="preload" as="video" href="portada-cliente-meneandocabellolargo-camaralenta.mp4" type="video/mp4" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -51,8 +56,6 @@
     </script>
 
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Italiana&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
 
     <!-- Lenis Smooth Scroll -->
@@ -356,7 +359,7 @@
     </header>
 
     <!-- ==========================================================================
-         MENÚ LATERAL OFF-CANVAS
+         MENÚ LATERAL OFF-CANVAS (BOTÓN DE WHATSAPP CON PROPORCIONES ÁUREAS)
          ========================================================================== -->
     <div id="mobile-popup-overlay" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
         <div id="mobile-drawer" class="absolute top-0 right-0 h-full w-[85%] max-w-sm bg-[#0C0C0C] border-l border-gold/30 p-7 shadow-2xl flex flex-col justify-between translate-x-full">
@@ -382,9 +385,10 @@
                 </nav>
             </div>
 
+            <!-- Botón WhatsApp perfectamente calibrado: la 'P' nunca toca el borde -->
             <div class="pt-6 border-t border-white/10 space-y-3">
-                <a href="https://wa.me/5491171109200?text=Hola%20Cristel%2C%20quisiera%20reservar%20mi%20turno" target="_blank" class="w-full block py-3.5 text-center gold-gradient-bg text-black font-extrabold tracking-cerini text-[11px] uppercase rounded-sm shadow-lg whitespace-nowrap px-4" onclick="playSoftTap()">
-                    Agendar por WhatsApp
+                <a href="https://wa.me/5491171109200?text=Hola%20Cristel%2C%20quisiera%20reservar%20mi%20turno" target="_blank" class="w-full flex items-center justify-center py-3.5 sm:py-4 px-4 gold-gradient-bg text-black font-extrabold tracking-[0.14em] text-[10px] sm:text-[11px] uppercase rounded-sm shadow-lg whitespace-nowrap active:scale-[0.98] transition-transform" onclick="playSoftTap()">
+                    <span>Agendar por WhatsApp</span>
                 </a>
                 <p class="text-[9px] tracking-widest text-greige/70 uppercase text-center font-mono">Virrey Arredondo 2448 · Belgrano</p>
             </div>
@@ -393,10 +397,10 @@
     </div>
 
     <!-- ==========================================================================
-         HERO SECTION
+         HERO SECTION: REPRODUCCIÓN INSTANTÁNEA OPTIMIZADA POR WORKERS
          ========================================================================== -->
     <section class="relative w-full min-h-[92dvh] sm:min-h-[100dvh] flex items-center justify-center overflow-hidden pt-28 pb-16">
-        <video id="hero-video" autoplay loop muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover object-center z-0 scale-105 transition-transform duration-1000 ease-out">
+        <video id="hero-video" autoplay loop muted playsinline preload="auto" poster="cristel fotos/fotodecabellolargoconextensionesreciencolocadas.webp" class="absolute inset-0 w-full h-full object-cover object-center z-0 scale-105 transition-transform duration-1000 ease-out">
             <source src="portada-cliente-meneandocabellolargo-camaralenta.mp4" type="video/mp4">
         </video>
 
@@ -686,8 +690,7 @@
             </div>
         </div>
     </section>
-
-    <!-- ==========================================================================
+<!-- ==========================================================================
          RESULTADOS: SLIDER ANTES / DESPUÉS
          ========================================================================== -->
     <section id="galeria" class="scroll-mt-24 sm:scroll-mt-28 py-16 sm:py-24 md:py-32 bg-[#080808] border-t border-white/10 relative z-20">
@@ -1105,7 +1108,6 @@
 
     <!-- ==========================================================================
          WIDGET FLOTANTE DE WHATSAPP (LUXURY EMERALD & GOLD)
-         Se oculta dinámicamente al abrir el menú lateral
          ========================================================================== -->
     <a id="floating-whatsapp" href="https://wa.me/5491171109200?text=Hola%20Cristel%2C%20quisiera%20hacer%20una%20consulta%20VIP%20sobre%20extensiones..." target="_blank" rel="noopener noreferrer" class="fixed bottom-5 right-5 z-40 flex items-center gap-2.5 group text-decoration-none transition-all duration-300 ease-out" aria-label="WhatsApp Concierge" onclick="playSoftTap()">
         <span class="hidden sm:inline-block bg-noir-card border border-gold/40 text-gold-light font-mono text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 rounded-full shadow-2xl group-hover:border-gold transition-colors">
@@ -1117,9 +1119,54 @@
     </a>
 
     <!-- ==========================================================================
-         LÓGICA JAVASCRIPT
+         LÓGICA JAVASCRIPT: LENIS, DRAWER, SLIDER, SELECTS & WORKER DE PRECARGA TURBO
          ========================================================================== -->
     <script>
+        // ==========================================================================
+        // 0. BACKGROUND WEB WORKER TURBO STREAMING (VIDEO INSTANTÁNEO)
+        // Precarga y almacena en caché el video en un hilo independiente sin bloquear la UI
+        // ==========================================================================
+        (function initTurboVideoWorker() {
+            try {
+                const workerCode = `
+                    self.onmessage = function(e) {
+                        const videoUrl = e.data.url;
+                        fetch(videoUrl, { mode: 'cors' })
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network error');
+                                return response.blob();
+                            })
+                            .then(blob => {
+                                self.postMessage({ status: 'ready', blob: blob, url: videoUrl });
+                            })
+                            .catch(err => {
+                                self.postMessage({ status: 'fallback', url: videoUrl });
+                            });
+                    };
+                `;
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const worker = new Worker(URL.createObjectURL(blob));
+
+                const heroVideo = document.getElementById('hero-video');
+                const videoSource = 'portada-cliente-meneandocabellolargo-camaralenta.mp4';
+
+                worker.postMessage({ url: videoSource });
+
+                worker.onmessage = function(e) {
+                    if (e.data.status === 'ready' && heroVideo) {
+                        const objectUrl = URL.createObjectURL(e.data.blob);
+                        // Si el video aún no arrancó fluido, inyectamos el buffer precargado
+                        if (heroVideo.readyState < 3) {
+                            heroVideo.src = objectUrl;
+                            heroVideo.play().catch(() => {});
+                        }
+                    }
+                };
+            } catch(e) {
+                // Fallback automático nativo del navegador
+            }
+        })();
+
         // 1. Lenis Smooth Scroll
         const lenis = new Lenis({
             duration: 1.1,
@@ -1154,7 +1201,6 @@
             mobileDrawer.classList.add('translate-x-0');
             document.body.classList.add('overflow-hidden');
 
-            // Ocultamiento elegante del botón flotante para que no colisione
             if (floatingWp) {
                 floatingWp.classList.add('opacity-0', 'scale-75', 'pointer-events-none', 'translate-y-3');
             }
@@ -1168,7 +1214,6 @@
             mobileDrawer.classList.add('translate-x-full');
             document.body.classList.remove('overflow-hidden');
 
-            // Reaparición fluida del botón flotante
             if (floatingWp) {
                 floatingWp.classList.remove('opacity-0', 'scale-75', 'pointer-events-none', 'translate-y-3');
             }
